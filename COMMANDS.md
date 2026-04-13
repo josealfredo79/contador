@@ -9,17 +9,17 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Instalar Stellar CLI (Soroban)
 ```bash
-cargo install --locked soroban-cli
+cargo install --locked stellar-cli
 ```
 
 ### Verificar instalación
 ```bash
-soroban --version
+stellar --version
 ```
 
 ### Agregar target WASM
 ```bash
-rustup target add wasm32-unknown-unknown
+rustup target add wasm32v1-none
 ```
 
 ### Instalar Node.js
@@ -55,23 +55,23 @@ touch Cargo.toml src/lib.rs
 
 ### Compilar a WASM (desarrollo)
 ```bash
-cargo build --target wasm32-unknown-unknown
+cargo build --target wasm32v1-none
 ```
 
 ### Compilar a WASM (producción)
 ```bash
-cargo build --target wasm32-unknown-unknown --release
+cargo build --target wasm32v1-none --release
 ```
 
 ### Optimizar binario WASM
 ```bash
-soroban contract optimize \
-  --wasm target/wasm32-unknown-unknown/release/mi_contrato.wasm
+stellar contract optimize \
+  --wasm target/wasm32v1-none/release/mi_contrato.wasm
 ```
 
 ### Limpiar y recompilar
 ```bash
-cargo clean && cargo build --target wasm32-unknown-unknown --release
+cargo clean && cargo build --target wasm32v1-none --release
 ```
 
 ---
@@ -104,21 +104,21 @@ cargo test -- --show-output
 
 ### Agregar red TestNet
 ```bash
-soroban config network add testnet \
+stellar network add testnet \
   --rpc-url https://soroban-testnet.stellar.org \
   --network-passphrase "Test SDF Network ; September 2015"
 ```
 
 ### Agregar red MainNet
 ```bash
-soroban config network add mainnet \
+stellar network add mainnet \
   --rpc-url https://soroban-rpc.stellar.org \
   --network-passphrase "Public Global Stellar Network ; June 2021"
 ```
 
 ### Ver redes configuradas
 ```bash
-soroban config network list
+stellar network ls
 ```
 
 ---
@@ -127,22 +127,32 @@ soroban config network list
 
 ### Generar nueva identidad
 ```bash
-soroban config identity generate nombre_identidad
+stellar keys generate nombre_identidad
 ```
 
 ### Ver dirección de identidad
 ```bash
-soroban config identity address nombre_identidad
+stellar keys address nombre_identidad
 ```
 
 ### Listar identidades
 ```bash
-soroban config identity list
+stellar keys ls
 ```
 
 ### Exportar identidad a archivo
 ```bash
-soroban config identity export nombre_identidad > clave.json
+stellar keys export nombre_identidad > clave.json
+```
+
+### Ver clave secreta
+```bash
+stellar keys secret nombre_identidad
+```
+
+### Fondear identidad en testnet
+```bash
+stellar keys fund nombre_identidad --network testnet
 ```
 
 ---
@@ -151,16 +161,16 @@ soroban config identity export nombre_identidad > clave.json
 
 ### Desplegar contrato en TestNet
 ```bash
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/mi_contrato.wasm \
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/mi_contrato.wasm \
   --network testnet \
   --source nombre_identidad
 ```
 
 ### Desplegar con saldo específico
 ```bash
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/mi_contrato.wasm \
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/mi_contrato.wasm \
   --network testnet \
   --source nombre_identidad \
   --salt 123456789
@@ -221,14 +231,14 @@ stellar contract invoke \
 
 ### Ver información del contrato WASM
 ```bash
-soroban contract inspect \
-  --wasm target/wasm32-unknown-unknown/release/mi_contrato.wasm
+stellar contract inspect \
+  --wasm target/wasm32v1-none/release/mi_contrato.wasm
 ```
 
 ### Listar funciones del contrato
 ```bash
-soroban contract info \
-  --wasm target/wasm32-unknown-unknown/release/mi_contrato.wasm
+stellar contract info \
+  --wasm target/wasm32v1-none/release/mi_contrato.wasm
 ```
 
 ### Simular transacción
@@ -237,9 +247,18 @@ stellar contract invoke \
   --id CONTRACT_ID \
   --source nombre_identidad \
   --network testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
   -- increment \
   --simulate
+```
+
+### Enviar transacción (no solo simular)
+```bash
+stellar contract invoke \
+  --id CONTRACT_ID \
+  --source nombre_identidad \
+  --network testnet \
+  --send \
+  -- increment
 ```
 
 ---
@@ -315,11 +334,13 @@ https://laboratory.stellar.org/#account-creator
 
 ### Error: target not found
 ```bash
-rustup target add wasm32-unknown-unknown
+rustup target add wasm32v1-none
 ```
 
 ### Error: insufficient funds
-Visitar: https://laboratory.stellar.org/#account-creator
+```bash
+stellar keys fund nombre_identidad --network testnet
+```
 
 ### Error: contract not found
 Verificar que el CONTRACT_ID sea correcto y esté desplegado en testnet.
@@ -330,15 +351,23 @@ Usar `cargo build --release` solo cuando sea necesario.
 ### Tests fallan
 Revisar que las dependencias en Cargo.toml estén actualizadas.
 
+### Error: wasm target unsupported
+Cambiar de `wasm32-unknown-unknown` a `wasm32v1-none` en Cargo.toml:
+```toml
+[profile.release]
+opt-level = "z"
+target = "wasm32v1-none"
+```
+
 ---
 
 ## 14. Comandos Útiles Adicionales
 
-### Ver ayuda de soroban
+### Ver ayuda de stellar
 ```bash
-soroban --help
-soroban contract --help
-soroban config --help
+stellar --help
+stellar contract --help
+stellar keys --help
 ```
 
 ### Ver historial de transacciones
@@ -357,5 +386,14 @@ stellar contract invoke \
 
 ### Fetch XLM de prueba (Faucet)
 ```bash
-curl "https://friendbot.stellar.org/?addr=PUBLIC_KEY"
+stellar keys fund nombre_identidad --network testnet
+```
+
+---
+
+## 15. Variables de Entorno Útiles
+
+```bash
+export STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+export STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
 ```
