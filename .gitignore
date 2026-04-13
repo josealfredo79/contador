@@ -1,0 +1,33 @@
+# Rust
+/target/
+Cargo.lock
+**/*.rs.bk
+
+# WASM
+*.wasm
+*.wasm.debug
+
+# Node
+node_modules/
+.env
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+*.profraw
+*.prof
+
+# Build
+build/
+dist/

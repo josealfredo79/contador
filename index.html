@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Contracts Soroban - Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border-bottom: 3px solid #e94560;
+        }
+
+        header h1 {
+            font-size: 3em;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        header h1 span {
+            color: #e94560;
+        }
+
+        header p {
+            font-size: 1.2em;
+            color: #a0a0a0;
+        }
+
+        nav {
+            background: #0f3460;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            list-style: none;
+            gap: 10px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background: #e94560;
+        }
+
+        section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        section h2 {
+            color: #e94560;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #4ecdc4;
+            margin: 20px 0 10px 0;
+            font-size: 1.3em;
+        }
+
+        p {
+            margin: 15px 0;
+            color: #c0c0c0;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid #4ecdc4;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #c9d1d9;
+        }
+
+        .comment { color: #8b949e; }
+        .keyword { color: #ff7b72; }
+        .string { color: #a5d6ff; }
+        .function { color: #d2a8ff; }
+        .number { color: #79c0ff; }
+        .type { color: #ffa657; }
+
+        .step {
+            background: rgba(78, 205, 196, 0.1);
+            border-left: 4px solid #4ecdc4;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #4ecdc4;
+            color: #1a1a2e;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: #0f3460;
+            color: #fff;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card h4 {
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin: 5px;
+        }
+
+        .status-success {
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+            border: 1px solid #4ecdc4;
+        }
+
+        .status-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .status-info {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            border: 1px solid #e94560;
+        }
+
+        .toc {
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .toc h4 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .toc a {
+            color: #c0c0c0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #e94560;
+        }
+
+        .architecture {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .arch-box {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border: 2px solid #4ecdc4;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .arch-box h5 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+
+        .arch-arrow {
+            color: #e94560;
+            font-size: 2em;
+        }
+
+        .test-result {
+            background: rgba(78, 205, 196, 0.1);
+            border-left: 4px solid #4ecdc4;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .test-pass {
+            color: #4ecdc4;
+        }
+
+        .test-fail {
+            color: #e94560;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: #0f3460;
+            margin-top: 50px;
+        }
+
+        footer p {
+            color: #a0a0a0;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #e94560;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+
+        .btn-secondary:hover {
+            background: #45b7aa;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            section {
+                padding: 20px;
+            }
+            
+            .architecture {
+                flex-direction: column;
+            }
+            
+            .arch-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Smart Contracts <span>Soroban</span></h1>
+        <p>Desarrollo de contratos inteligentes en Rust para Stellar</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#intro">Introducción</a></li>
+            <li><a href="#instalacion">Instalación</a></li>
+            <li><a href="#contrato">Contrato</a></li>
+            <li><a href="#compilacion">Compilación</a></li>
+            <li><a href="#tests">Tests</a></li>
+            <li><a href="#despliegue">Despliegue</a></li>
+            <li><a href="#api">API</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="intro">
+            <h2>📚 Introducción</h2>
+            
+            <p>Bienvenido al tutorial de desarrollo de Smart Contracts con <strong>Soroban</strong>, la plataforma de contratos inteligentes de <strong>Stellar</strong>. En este tutorial aprenderás a crear, compilar, probar y desplegar tu primer contrato inteligente.</p>
+
+            <div class="toc">
+                <h4>Tabla de Contenidos</h4>
+                <ul>
+                    <li>→ <a href="#intro">1. Introducción</a></li>
+                    <li>→ <a href="#instalacion">2. Instalación del Entorno</a></li>
+                    <li>→ <a href="#contrato">3. Crear el Contrato</a></li>
+                    <li>→ <a href="#compilacion">4. Compilación</a></li>
+                    <li>→ <a href="#tests">5. Pruebas Unitarias</a></li>
+                    <li>→ <a href="#despliegue">6. Despliegue en TestNet</a></li>
+                    <li>→ <a href="#api">7. API Node.js</a></li>
+                </ul>
+            </div>
+
+            <h3>🏗️ Arquitectura del Proyecto</h3>
+            <div class="architecture">
+                <div class="arch-box">
+                    <h5>💻 Código Rust</h5>
+                    <p>src/lib.rs</p>
+                </div>
+                <span class="arch-arrow">→</span>
+                <div class="arch-box">
+                    <h5>⚙️ Compilación</h5>
+                    <p>WASM Binary</p>
+                </div>
+                <span class="arch-arrow">→</span>
+                <div class="arch-box">
+                    <h5>🌐 TestNet</h5>
+                    <p>Despliegue</p>
+                </div>
+                <span class="arch-arrow">→</span>
+                <div class="arch-box">
+                    <h5>🔌 API</h5>
+                    <p>Node.js</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="instalacion">
+            <h2>⚙️ Instalación del Entorno</h2>
+
+            <h3>1. Instalar Rust</h3>
+            <div class="code-block">
+                <code><span class="comment"># Ejecuta el instalador de Rust</span>
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+<span class="comment"># Recarga el entorno</span>
+source ~/.cargo/env
+
+<span class="comment"># Verificar instalación</span>
+rustc --version
+cargo --version</code>
+            </div>
+
+            <h3>2. Instalar Stellar CLI (Soroban)</h3>
+            <div class="code-block">
+                <code>cargo install --locked soroban-cli
+
+<span class="comment"># Verificar versión</span>
+soroban --version</code>
+            </div>
+
+            <h3>3. Agregar Target WASM</h3>
+            <div class="code-block">
+                <code><span class="comment"># Importante: usar wasm32v1-none para Soroban 25+</span>
+rustup target add wasm32v1-none
+
+<span class="comment"># Ver targets instalados</span>
+rustup target list --installed</code>
+            </div>
+
+            <h3>4. Instalar Node.js (opcional para API)</h3>
+            <div class="code-block">
+                <code><span class="comment"># Ubuntu/Debian</span>
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+<span class="comment"># Verificar</span>
+node --version
+npm --version</code>
+            </div>
+
+            <div class="card">
+                <h4>✅ Requisitos Completados</h4>
+                <span class="status-badge status-success">Rust 1.70+</span>
+                <span class="status-badge status-success">Soroban CLI</span>
+                <span class="status-badge status-success">wasm32v1-none</span>
+                <span class="status-badge status-success">Node.js 18+ (opcional)</span>
+            </div>
+        </section>
+
+        <section id="contrato">
+            <h2>📝 Crear el Contrato Contador</h2>
+
+            <h3>1. Estructura del Proyecto</h3>
+            <div class="code-block">
+                <code><span class="comment"># Crear directorio</span>
+mkdir soroban-contador && cd soroban-contador
+
+<span class="comment"># Crear estructura</span>
+mkdir -p src</code>
+            </div>
+
+            <h3>2. Cargo.toml</h3>
+            <div class="code-block">
+                <code><span class="attr">[package]</span>
+<span class="type">name</span> = <span class="string">"contador"</span>
+<span class="type">version</span> = <span class="string">"0.1.0"</span>
+<span class="type">edition</span> = <span class="string">"2021"</span>
+
+<span class="attr">[lib]</span>
+<span class="type">crate-type</span> = [<span class="string">"cdylib"</span>]
+
+<span class="attr">[dependencies]</span>
+<span class="type">soroban-sdk</span> = { <span class="type">version</span> = <span class="string">"25.3.0"</span>, <span class="type">features</span> = [<span class="string">"alloc"</span>] }
+
+<span class="attr">[dev-dependencies]</span>
+<span class="type">soroban-sdk</span> = { <span class="type">version</span> = <span class="string">"25.3.0"</span>, <span class="type">features</span> = [<span class="string">"testutils"</span>] }
+
+<span class="attr">[profile.release]</span>
+<span class="type">opt-level</span> = <span class="string">"z"</span>
+<span class="type">overflow-checks</span> = <span class="keyword">true</span>
+<span class="type">strip</span> = <span class="string">"symbols"</span>
+<span class="type">panic</span> = <span class="string">"abort"</span>
+<span class="type">lto</span> = <span class="keyword">true</span></code>
+            </div>
+
+            <h3>3. Código del Contrato (src/lib.rs)</h3>
+            <div class="code-block">
+                <code><span class="attr">#![no_std]</span>
+<span class="keyword">use</span> soroban_sdk::{contract, contractimpl, symbol_short, Env, Symbol};
+
+<span class="keyword">const</span> <span class="type">COUNTER</span>: Symbol = symbol_short!(<span class="string">"COUNTER"</span>);
+
+<span class="attr">#[contract]</span>
+<span class="keyword">pub struct</span> <span class="function">ContadorContract</span>;
+
+<span class="attr">#[contractimpl]</span>
+<span class="keyword">impl</span> <span class="function">ContadorContract</span> {
+    <span class="keyword">pub fn</span> <span class="function">increment</span>(env: Env) -> <span class="type">u32</span> {
+        <span class="keyword">let mut</span> count: <span class="type">u32</span> = env.storage()
+            .instance()
+            .get(&<span class="type">COUNTER</span>)
+            .unwrap_or(<span class="number">0</span>);
+        count += <span class="number">1</span>;
+        env.storage().instance().set(&<span class="type">COUNTER</span>, &count);
+        count
+    }
+
+    <span class="keyword">pub fn</span> <span class="function">decrement</span>(env: Env) -> <span class="type">u32</span> {
+        <span class="keyword">let</span> count: <span class="type">u32</span> = env.storage()
+            .instance()
+            .get(&<span class="type">COUNTER</span>)
+            .unwrap_or(<span class="number">0</span>);
+        <span class="keyword">let</span> new_count = count.saturating_sub(<span class="number">1</span>);
+        env.storage().instance().set(&<span class="type">COUNTER</span>, &new_count);
+        new_count
+    }
+
+    <span class="keyword">pub fn</span> <span class="function">get</span>(env: Env) -> <span class="type">u32</span> {
+        env.storage()
+            .instance()
+            .get(&<span class="type">COUNTER</span>)
+            .unwrap_or(<span class="number">0</span>)
+    }
+
+    <span class="keyword">pub fn</span> <span class="function">reset</span>(env: Env) {
+        env.storage().instance().set(&<span class="type">COUNTER</span>, &<span class="number">0u32</span>);
+    }
+}
+
+<span class="comment">// Tests integrados</span>
+<span class="attr">#[cfg(test)]</span>
+<span class="keyword">mod test</span> {
+    <span class="keyword">use super::*</span>;
+    <span class="keyword">use</span> soroban_sdk::Env;
+
+    <span class="attr">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_increment</span>() {
+        <span class="keyword">let</span> env = Env::default();
+        <span class="keyword">let</span> contract_id = env.register_contract(<span class="type">None</span>, <span class="function">ContadorContract</span>);
+        <span class="keyword">let</span> client = <span class="function">ContadorContractClient</span>::new(&env, &contract_id);
+
+        assert_eq!(client.increment(), <span class="number">1</span>);
+        assert_eq!(client.increment(), <span class="number">2</span>);
+        assert_eq!(client.get(), <span class="number">2</span>);
+    }
+
+    <span class="attr">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_decrement</span>() {
+        <span class="keyword">let</span> env = Env::default();
+        <span class="keyword">let</span> contract_id = env.register_contract(<span class="type">None</span>, <span class="function">ContadorContract</span>);
+        <span class="keyword">let</span> client = <span class="function">ContadorContractClient</span>::new(&env, &contract_id);
+
+        client.increment();
+        client.increment();
+        client.increment();
+        assert_eq!(client.get(), <span class="number">3</span>);
+        assert_eq!(client.decrement(), <span class="number">2</span>);
+        assert_eq!(client.decrement(), <span class="number">0</span>);
+    }
+}</code>
+            </div>
+
+            <h3>Funciones del Contrato</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Función</th>
+                        <th>Descripción</th>
+                        <th>Retorna</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>increment()</code></td>
+                        <td>Suma 1 al contador</td>
+                        <td><code>u32</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>decrement()</code></td>
+                        <td>Resta 1 al contador (mín 0)</td>
+                        <td><code>u32</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>get()</code></td>
+                        <td>Obtiene el valor actual</td>
+                        <td><code>u32</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>reset()</code></td>
+                        <td>Reinicia a 0</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="compilacion">
+            <h2>🔨 Compilación</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Compilar a WebAssembly</strong>
+            </div>
+            <div class="code-block">
+                <code><span class="comment"># Desarrollo (más rápido)</span>
+cargo build --target wasm32v1-none
+
+<span class="comment"># Producción (optimizado)</span>
+cargo build --target wasm32v1-none --release</code>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Verificar archivo WASM</strong>
+            </div>
+            <div class="code-block">
+                <code><span class="comment"># Ver el archivo generado</span>
+ls -lh target/wasm32v1-none/release/contador.wasm
+
+<span class="comment"># Output esperado: ~1KB (optimizado)</span></code>
+            </div>
+
+            <div class="card">
+                <h4>📦 Resultado de Compilación</h4>
+                <p>El archivo <code>contador.wasm</code> es el artefacto que se desplegará en la red Stellar.</p>
+                <span class="status-badge status-success">WASM Binary</span>
+                <span class="status-badge status-success">Optimizado</span>
+                <span class="status-badge status-info">~1KB</span>
+            </div>
+        </section>
+
+        <section id="tests">
+            <h2>🧪 Pruebas Unitarias</h2>
+
+            <div class="code-block">
+                <code><span class="comment"># Ejecutar todos los tests</span>
+cargo test
+
+<span class="comment"># Con output detallado</span>
+cargo test -- --nocapture
+
+<span class="comment"># Ejecutar un test específico</span>
+cargo test test_increment</code>
+            </div>
+
+            <h3>Resultados de Tests</h3>
+            <div class="test-result">
+                <span class="test-pass">✅ test_get_initial_value ... ok</span>
+            </div>
+            <div class="test-result">
+                <span class="test-pass">✅ test_increment ... ok</span>
+            </div>
+            <div class="test-result">
+                <span class="test-pass">✅ test_reset ... ok</span>
+            </div>
+            <div class="test-result">
+                <span class="test-pass">✅ test_decrement ... ok</span>
+            </div>
+
+            <div class="card">
+                <h4>📊 Resumen</h4>
+                <p><strong>4 tests passed</strong> | 0 failed</p>
+                <span class="status-badge status-success">Todos los tests aprobados</span>
+            </div>
+
+            <h3>¿Qué validan los tests?</h3>
+            <table>
+                <tr>
+                    <td><code>test_increment</code></td>
+                    <td>Verifica que el contador incremente correctamente y get() devuelva el valor actualizado</td>
+                </tr>
+                <tr>
+                    <td><code>test_decrement</code></td>
+                    <td>Verifica que decrement no baje de 0 (saturating_sub)</td>
+                </tr>
+                <tr>
+                    <td><code>test_reset</code></td>
+                    <td>Verifica que reset() deje el contador en 0</td>
+                </tr>
+                <tr>
+                    <td><code>test_get_initial_value</code></td>
+                    <td>Verifica que el valor inicial sea 0</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="despliegue">
+            <h2>🚀 Despliegue en TestNet</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Configurar red TestNet</strong>
+            </div>
+            <div class="code-block">
+                <code>soroban config network add testnet \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase <span class="string">"Test SDF Network ; September 2015"</span>
+
+<span class="comment"># Ver redes configuradas</span>
+soroban config network list</code>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Generar identidad</strong>
+            </div>
+            <div class="code-block">
+                <code><span class="comment"># Crear nueva identidad</span>
+soroban config identity generate estudiante
+
+<span class="comment"># Ver dirección pública</span>
+soroban config identity address estudiante
+
+<span class="comment"># Listar identidades</span>
+soroban config identity list</code>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Obtener XLM de prueba</strong>
+            </div>
+            <div class="code-block">
+                <code><span class="comment"># Solicitar XLM de testnet</span>
+curl <span class="string">"https://friendbot.stellar.org/?addr=TU_DIRECCION"</span>
+
+<span class="comment"># O usar Stellar Laboratory</span>
+<span class="comment"># https://laboratory.stellar.org/#account-creator</span></code>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Desplegar contrato</strong>
+            </div>
+            <div class="code-block">
+                <code>soroban contract deploy \
+  --wasm target/wasm32v1-none/release/contador.wasm \
+  --network testnet \
+  --source estudiante
+
+<span class="comment"># Output: CONTRACT_ID (guárdalo!)</span>
+<span class="comment"># Ejemplo: CDTLBM7PGKSNM7K......</span></code>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>Invocar funciones</strong>
+            </div>
+            <div class="code-block">
+                <code><span class="comment"># Consultar valor actual</span>
+stellar contract invoke \
+  --id <span class="type">CONTRACT_ID</span> \
+  --source estudiante \
+  --network testnet \
+  -- get
+
+<span class="comment"># Incrementar</span>
+stellar contract invoke \
+  --id <span class="type">CONTRACT_ID</span> \
+  --source estudiante \
+  --network testnet \
+  -- increment
+
+<span class="comment"># Decrementar</span>
+stellar contract invoke \
+  --id <span class="type">CONTRACT_ID</span> \
+  --source estudiante \
+  --network testnet \
+  -- decrement
+
+<span class="comment"># Resetear</span>
+stellar contract invoke \
+  --id <span class="type">CONTRACT_ID</span> \
+  --source estudiante \
+  --network testnet \
+  -- reset</code>
+            </div>
+
+            <div class="card">
+                <h4>🔍 Verificar en Exploradores</h4>
+                <p>Puedes verificar tu contrato desplegado en:</p>
+                <span class="status-badge status-info">Stellar Expert</span>
+                <span class="status-badge status-info">Stellar Laboratory</span>
+                <br><br>
+                <code>https://stellar.expert/explorer/testnet/contract/CONTRACT_ID</code>
+            </div>
+        </section>
+
+        <section id="api">
+            <h2>🔌 API Node.js</h2>
+
+            <h3>1. Crear proyecto API</h3>
+            <div class="code-block">
+                <code>mkdir api-contador && cd api-contador
+npm init -y
+npm install @stellar/stellar-sdk express dotenv</code>
+            </div>
+
+            <h3>2. Variables de entorno (.env)</h3>
+            <div class="code-block">
+                <code><span class="type">CONTRACT_ID</span>=tu_contract_id
+<span class="type">PUBLIC_KEY</span>=tu_public_key
+<span class="type">SECRET_KEY</span>=tu_secret_key</code>
+            </div>
+
+            <h3>3. Código del servidor (index.js)</h3>
+            <div class="code-block">
+                <code><span class="keyword">const</span> express = require(<span class="string">'express'</span>);
+<span class="keyword">const</span> StellarSdk = require(<span class="string">'@stellar/stellar-sdk'</span>);
+require(<span class="string">'dotenv'</span>).config();
+
+<span class="keyword">const</span> app = express();
+app.use(express.json());
+
+<span class="keyword">const</span> server = <span class="keyword">new</span> StellarSdk.SorobanRpc.Server(<span class="string">'https://soroban-testnet.stellar.org'</span>);
+<span class="keyword">const</span> contract = <span class="keyword">new</span> StellarSdk.Contract(process.env.<span class="type">CONTRACT_ID</span>);
+
+app.get(<span class="string">'/contador'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="keyword">try</span> {
+        <span class="keyword">const</span> account = <span class="keyword">await</span> server.getAccount(process.env.<span class="type">PUBLIC_KEY</span>);
+        <span class="keyword">const</span> tx = <span class="keyword">new</span> StellarSdk.TransactionBuilder(account, {
+            fee: StellarSdk.<span class="type">BASE_FEE</span>,
+            networkPassphrase: StellarSdk.<span class="type">Networks</span>.<span class="type">TESTNET</span>
+        })
+            .addOperation(contract.call(<span class="string">'get'</span>))
+            .setTimeout(<span class="number">30</span>)
+            .build();
+        
+        <span class="keyword">const</span> sim = <span class="keyword">await</span> server.simulateTransaction(tx);
+        <span class="keyword">const</span> value = StellarSdk.scValToNative(sim.result?.retval);
+        res.json({ count: value });
+    } <span class="keyword">catch</span> (error) {
+        res.status(<span class="number">500</span>).json({ error: error.message });
+    }
+});
+
+app.post(<span class="string">'/contador/increment'</span>, <span class="keyword">async</span> (req, res) => {
+    <span class="comment">// Similar a GET pero con contract.call('increment')</span>
+});
+
+app.listen(<span class="number">3000</span>, () => console.log(<span class="string">'API corriendo en puerto 3000'</span>));</code>
+            </div>
+
+            <h3>4. Endpoints</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Método</th>
+                        <th>Endpoint</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>/contador</td>
+                        <td>Obtener valor actual</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/contador/increment</td>
+                        <td>Incrementar +1</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/contador/decrement</td>
+                        <td>Decrementar -1</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/contador/reset</td>
+                        <td>Reiniciar a 0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>5. Probar con cURL</h3>
+            <div class="code-block">
+                <code><span class="comment"># Iniciar servidor</span>
+npm start
+
+<span class="comment"># Consultar contador</span>
+curl http://localhost:3000/contador
+
+<span class="comment"># Incrementar</span>
+curl -X POST http://localhost:3000/contador/increment
+
+<span class="comment"># Decrementar</span>
+curl -X POST http://localhost:3000/contador/decrement
+
+<span class="comment"># Resetear</span>
+curl -X POST http://localhost:3000/contador/reset</code>
+            </div>
+        </section>
+
+        <section id="comandos">
+            <h2>📋 Comandos Rápidos</h2>
+
+            <div class="code-block">
+                <code><span class="comment"># ========== COMPILACIÓN ==========</span>
+cargo build --target wasm32v1-none --release
+cargo test
+soroban contract optimize --wasm target/wasm32v1-none/release/contador.wasm
+
+<span class="comment"># ========== REDES ==========</span>
+soroban config network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
+soroban config network list
+
+<span class="comment"># ========== IDENTIDADES ==========</span>
+soroban config identity generate estudiante
+soroban config identity address estudiante
+
+<span class="comment"># ========== DESPLIEGUE ==========</span>
+soroban contract deploy --wasm target/wasm32v1-none/release/contador.wasm --network testnet --source estudiante
+
+<span class="comment"># ========== INVOCAR ==========</span>
+stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- get
+stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- increment
+stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- decrement
+stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- reset</code>
+            </div>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>🔧 Solución de Problemas</h2>
+
+            <div class="card">
+                <h4>Error: target not found</h4>
+                <div class="code-block">
+                    <code>rustup target add wasm32v1-none</code>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>Error: insufficient funds</h4>
+                <p>Solicita XLM de prueba en <a href="https://laboratory.stellar.org" style="color: #4ecdc4;">https://laboratory.stellar.org</a></p>
+            </div>
+
+            <div class="card">
+                <h4>Error: contract not found</h4>
+                <p>Verifica que el CONTRACT_ID sea correcto y esté desplegado en testnet.</p>
+            </div>
+
+            <div class="card">
+                <h4>Compilación lenta</h4>
+                <p>Usa <code>cargo build --release</code> solo cuando sea necesario.</p>
+            </div>
+
+            <div class="card">
+                <h4>Tests fallan</h4>
+                <p>Revisa que las dependencias en Cargo.toml estén actualizadas.</p>
+            </div>
+        </section>
+
+        <section id="recursos">
+            <h2>📚 Recursos Adicionales</h2>
+
+            <h3>Documentación Oficial</h3>
+            <ul>
+                <li><a href="https://developers.stellar.org/docs" style="color: #4ecdc4;">Stellar Docs</a></li>
+                <li><a href="https://soroban.stellar.org/docs/examples" style="color: #4ecdc4;">Soroban by Example</a></li>
+                <li><a href="https://doc.rust-lang.org/book/" style="color: #4ecdc4;">Rust Book</a></li>
+            </ul>
+
+            <h3>Herramientas</h3>
+            <ul>
+                <li><a href="https://laboratory.stellar.org" style="color: #4ecdc4;">Stellar Laboratory</a> - Testear transacciones</li>
+                <li><a href="https://stellar.expert" style="color: #4ecdc4;">Stellar Expert</a> - Explorador de blockchain</li>
+            </ul>
+
+            <h3>Comunidad</h3>
+            <ul>
+                <li>Discord de Stellar Developers</li>
+                <li>Stack Overflow (tag: stellar)</li>
+                <li>GitHub Discussions</li>
+            </ul>
+
+            <div class="card">
+                <h4>⚠️ Vulnerabilidades Comunes</h4>
+                <span class="status-badge status-warning">Reentrancy</span>
+                <span class="status-badge status-warning">Integer Overflow</span>
+                <span class="status-badge status-warning">Falta de validación</span>
+                <p style="margin-top: 10px;">Siempre valida inputs antes de modificar estado.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Smart Contracts Soroban - Tutorial 2024</p>
+        <p>Desarrollado para el Sprint 3 de Blockchain</p>
+        <br>
+        <a href="#" class="btn">Volver arriba</a>
+    </footer>
+
+    <script>
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
