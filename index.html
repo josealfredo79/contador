@@ -1022,82 +1022,108 @@ mkdir -p .cargo
                     let currentValue = 0;
                     let currentStep = 0;
                     let isAnimating = false;
-                    let animationTimeout = null;
+                    let animationTimer = null;
                     
                     function updateDisplay() {
-                        const display = document.getElementById('storage-display');
-                        display.textContent = currentValue;
-                        display.classList.add('changed');
-                        setTimeout(() => display.classList.remove('changed'), 300);
+                        var display = document.getElementById('storage-display');
+                        if (display) {
+                            display.textContent = currentValue;
+                            display.classList.add('changed');
+                            setTimeout(function() { display.classList.remove('changed'); }, 300);
+                        }
+                    }
+                    
+                    function clearHighlights() {
+                        var boxes = document.querySelectorAll('.anim-box');
+                        for (var i = 0; i < boxes.length; i++) {
+                            boxes[i].classList.remove('highlight');
+                        }
+                        var arrows = document.querySelectorAll('.anim-arrow');
+                        for (var j = 0; j < arrows.length; j++) {
+                            arrows[j].classList.remove('active');
+                        }
                     }
                     
                     function highlightBox(boxClass) {
-                        document.querySelectorAll('.anim-box').forEach(b => b.classList.remove('highlight'));
-                        document.querySelectorAll('.anim-arrow').forEach(a => a.classList.remove('active'));
+                        clearHighlights();
                         if (boxClass) {
-                            document.querySelector(boxClass).classList.add('highlight');
+                            var el = document.querySelector(boxClass);
+                            if (el) el.classList.add('highlight');
                         }
                     }
                     
                     function highlightCodeLines(lineIds, state) {
-                        if (state === 'active') {
-                            lineIds.forEach(id => {
-                                const el = document.getElementById('code-' + id);
-                                if (el) {
+                        for (var i = 1; i <= 21; i++) {
+                            var el = document.getElementById('code-' + i);
+                            if (el) {
+                                if (state === 'active' && lineIds.indexOf(i) !== -1) {
                                     el.classList.remove('complete');
                                     el.classList.add('active');
-                                }
-                            });
-                        } else if (state === 'complete') {
-                            lineIds.forEach(id => {
-                                const el = document.getElementById('code-' + id);
-                                if (el) {
+                                } else if (state === 'complete' && lineIds.indexOf(i) !== -1) {
                                     el.classList.remove('active');
                                     el.classList.add('complete');
                                 }
-                            });
+                            }
                         }
                     }
                     
                     function updateCurrentLine(text) {
-                        document.getElementById('current-line-text').textContent = text;
+                        var el = document.getElementById('current-line-text');
+                        if (el) el.textContent = text;
                     }
                     
-                    function scrollCodeToLine(lineId) {
-                        const el = document.getElementById('code-' + lineId);
-                        if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    function setStepActive(stepNum) {
+                        for (var i = 1; i <= 4; i++) {
+                            var step = document.getElementById('step' + i);
+                            if (step) {
+                                step.classList.remove('active');
+                                if (i === stepNum) step.classList.add('active');
+                            }
                         }
                     }
                     
-                    function setStep(stepNum, state) {
-                        const step = document.getElementById('step' + stepNum);
+                    function setStepComplete(stepNum) {
+                        var step = document.getElementById('step' + stepNum);
                         if (step) {
-                            step.classList.remove('active', 'complete');
-                            if (state === 'active') step.classList.add('active');
-                            if (state === 'complete') step.classList.add('complete');
+                            step.classList.remove('active');
+                            step.classList.add('complete');
                         }
                     }
                     
                     function logToConsole(type, message) {
-                        const output = document.getElementById('console-output');
-                        const line = document.createElement('div');
-                        line.className = 'console-line ' + type;
-                        line.textContent = message;
-                        output.appendChild(line);
-                        output.scrollTop = output.scrollHeight;
+                        var output = document.getElementById('console-output');
+                        if (output) {
+                            var line = document.createElement('div');
+                            line.className = 'console-line ' + type;
+                            line.textContent = message;
+                            output.appendChild(line);
+                            output.scrollTop = output.scrollHeight;
+                        }
                     }
                     
                     function resetAnimation() {
-                        if (animationTimeout) clearTimeout(animationTimeout);
+                        if (animationTimer) clearTimeout(animationTimer);
                         currentValue = 0;
                         currentStep = 0;
                         isAnimating = false;
-                        document.getElementById('storage-display').textContent = '0';
-                        document.getElementById('console-output').innerHTML = '';
-                        document.querySelectorAll('.anim-step').forEach(s => s.classList.remove('active', 'complete'));
-                        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
-                        highlightBox(null);
+                        
+                        var storageDisplay = document.getElementById('storage-display');
+                        if (storageDisplay) storageDisplay.textContent = '0';
+                        
+                        var consoleOutput = document.getElementById('console-output');
+                        if (consoleOutput) consoleOutput.innerHTML = '';
+                        
+                        for (var i = 1; i <= 4; i++) {
+                            var step = document.getElementById('step' + i);
+                            if (step) step.classList.remove('active', 'complete');
+                        }
+                        
+                        for (var j = 1; j <= 21; j++) {
+                            var codeLine = document.getElementById('code-' + j);
+                            if (codeLine) codeLine.classList.remove('active', 'complete');
+                        }
+                        
+                        clearHighlights();
                         updateCurrentLine('Ninguna');
                         logToConsole('result', '🔄 Animación reseteada. Valor actual: 0');
                     }
@@ -1106,94 +1132,86 @@ mkdir -p .cargo
                         if (isAnimating) return;
                         isAnimating = true;
                         
-                        for (let i = 1; i <= 4; i++) setStep(i, null);
-                        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
+                        var endValue;
+                        var calcText = '';
+                        var codeLines, codeText;
                         
-                        let endValue;
-                        let calcText = '';
-                        let invokeName = action + '()';
-                        
-                        let codeLines, codeText;
                         if (action === 'increment') {
                             endValue = currentValue + 1;
                             calcText = currentValue + ' + 1 = ' + endValue;
-                            codeLines = {1: [2,3,4], 2: [5], 3: [6,7], 4: [8]};
-                            codeText = {1: 'env.storage().get(&COUNTER)', 2: 'count += 1', 3: 'env.storage().set()', 4: 'return count'};
+                            codeLines = [[2,3,4], [5], [6,7], [8]];
+                            codeText = ['env.storage().get(&COUNTER)', 'count += 1', 'env.storage().set()', 'return count'];
                         } else if (action === 'decrement') {
                             endValue = Math.max(0, currentValue - 1);
                             calcText = currentValue + ' - 1 = ' + endValue;
-                            codeLines = {1: [11,12], 2: [13], 3: [14,15], 4: [16]};
-                            codeText = {1: 'env.storage().get(&COUNTER)', 2: 'count.saturating_sub(1)', 3: 'env.storage().set()', 4: 'return new_count'};
+                            codeLines = [[11,12], [13], [14,15], [16]];
+                            codeText = ['env.storage().get(&COUNTER)', 'count.saturating_sub(1)', 'env.storage().set()', 'return new_count'];
                         } else {
                             endValue = 0;
-                            calcText = 'reset → 0';
-                            codeLines = {1: [], 2: [], 3: [19,20], 4: []};
-                            codeText = {1: 'Leyendo valor actual', 2: 'Procesando reset', 3: 'env.storage().set(COUNTER, 0)', 4: 'Fin'};
+                            calcText = 'reset = 0';
+                            codeLines = [[], [], [19,20], []];
+                            codeText = ['Preparando reset', 'Procesando', 'env.storage().set()', 'Fin'];
                         }
                         
-                        logToConsole('invoke', '📤 Invocando: ' + invokeName);
+                        logToConsole('invoke', '📤 Invocando: ' + action + '()');
                         
-                        let step = 1;
-                        const delays = [1000, 1000, 1000, 800];
+                        var step = 0;
+                        var delays = [1200, 1200, 1200, 800];
                         
                         function runStep() {
-                            if (step <= 4) {
-                                setStep(step, 'active');
+                            if (step < 4) {
+                                setStepActive(step + 1);
                                 highlightBox('.contract-box');
                                 
-                                highlightCodeLines(codeLines[step] || [], 'active');
-                                updateCurrentLine(codeText[step] || '');
-                                if (codeLines[step] && codeLines[step].length > 0) {
-                                    scrollCodeToLine(codeLines[step][0]);
-                                }
+                                highlightCodeLines(codeLines[step], 'active');
+                                updateCurrentLine(codeText[step]);
                                 
-                                if (step === 1) {
-                                    logToConsole('read', '📖 Leyendo storage[COUNTER] → ' + currentValue);
-                                    document.getElementById('calc-display').textContent = currentValue;
+                                if (step === 0) {
+                                    logToConsole('read', '📖 Leyendo storage[COUNTER] = ' + currentValue);
+                                    var calcDisplay = document.getElementById('calc-display');
+                                    if (calcDisplay) calcDisplay.textContent = currentValue;
+                                } else if (step === 1) {
+                                    var arrow = document.getElementById('arrow-storage');
+                                    if (arrow) arrow.classList.add('active');
+                                    logToConsole('write', '➕ Calculando: ' + calcText);
+                                    var calcDisplay2 = document.getElementById('calc-display');
+                                    if (calcDisplay2) calcDisplay2.textContent = calcText;
                                 } else if (step === 2) {
-                                    highlightBox(null);
-                                    document.getElementById('arrow-storage').classList.add('active');
-                                    if (action !== 'reset') {
-                                        logToConsole('write', '➕ Calculando: ' + calcText);
-                                    } else {
-                                        logToConsole('write', '🔄 Reset: valor = 0');
-                                    }
-                                    document.getElementById('calc-display').textContent = calcText;
-                                } else if (step === 3) {
-                                    highlightBox('.storage-box');
-                                    logToConsole('write', '💾 Guardando en storage: COUNTER = ' + endValue);
+                                    clearHighlights();
+                                    var storageBox = document.querySelector('.storage-box');
+                                    if (storageBox) storageBox.classList.add('highlight');
+                                    logToConsole('write', '💾 Guardando: COUNTER = ' + endValue);
                                     currentValue = endValue;
                                     updateDisplay();
-                                } else if (step === 4) {
-                                    document.getElementById('arrow-storage').classList.remove('active');
+                                } else if (step === 3) {
+                                    var arrow = document.getElementById('arrow-storage');
+                                    if (arrow) arrow.classList.remove('active');
                                     highlightBox('.contract-box');
                                     logToConsole('result', '✅ Retornando: ' + endValue);
-                                    document.getElementById('return-display').textContent = endValue;
+                                    var returnDisplay = document.getElementById('return-display');
+                                    if (returnDisplay) returnDisplay.textContent = endValue;
                                 }
                                 
-                                setTimeout(() => {
-                                    setStep(step, 'complete');
-                                    highlightCodeLines(codeLines[step] || [], 'complete');
+                                animationTimer = setTimeout(function() {
+                                    setStepComplete(step + 1);
+                                    highlightCodeLines(codeLines[step], 'complete');
                                     step++;
                                     runStep();
-                                }, delays[step - 1]);
+                                }, delays[step]);
                             } else {
                                 isAnimating = false;
-                                highlightBox(null);
+                                clearHighlights();
+                                updateCurrentLine('Completado');
                             }
                         }
                         
                         runStep();
                     }
                     
-                    function stepAnimation() {
-                        if (currentStep === 0) {
-                            playAnimation('increment');
-                        }
-                    }
-                    
-                    // Initialize
-                    resetAnimation();
+                    // Initialize when page loads
+                    window.onload = function() {
+                        resetAnimation();
+                    };
                 </script>
             </div>
 
