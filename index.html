@@ -355,6 +355,7 @@
             <li><a href="#instalacion">Instalación</a></li>
             <li><a href="#contrato">Contrato</a></li>
             <li><a href="#explicacion">Explicación</a></li>
+            <li><a href="#animacion">Animación</a></li>
             <li><a href="#compilacion">Compilación</a></li>
             <li><a href="#tests">Tests</a></li>
             <li><a href="#despliegue">Despliegue</a></li>
@@ -375,6 +376,7 @@
                     <li>→ <a href="#instalacion">2. Instalación del Entorno</a></li>
                     <li>→ <a href="#contrato">3. Crear el Contrato</a></li>
                     <li>→ <a href="#explicacion">3b. Explicación del Código</a></li>
+                    <li>→ <a href="#animacion">3c. Animación Interactiva</a></li>
                     <li>→ <a href="#compilacion">4. Compilación</a></li>
                     <li>→ <a href="#tests">5. Pruebas Unitarias</a></li>
                     <li>→ <a href="#despliegue">6. Despliegue en TestNet</a></li>
@@ -701,15 +703,339 @@ mkdir -p .cargo
                 </p>
             </div>
 
-            <div class="card">
-                <h4>📊 Flujo de Ejecución de increment()</h4>
-                <pre style="background: #0d1117; padding: 15px; border-radius: 5px; margin-top: 10px;">
-┌─────────────────────────────────────────┐
-│ 1. Lee valor: storage[COUNTER] → 0      │
-│ 2. Incrementa: 0 + 1 = 1               │
-│ 3. Guarda: storage[COUNTER] = 1         │
-│ 4. Retorna: 1                          │
-└─────────────────────────────────────────┘</pre>
+            <div class="card" id="animacion">
+                <h4>🎬 Animación Interactiva del Contrato</h4>
+                
+                <div class="animation-container">
+                    <div class="animation-row">
+                        <div class="anim-box contract-box">
+                            <div class="box-label">Contrato</div>
+                            <div class="function-name">increment()</div>
+                        </div>
+                        <div class="anim-arrow" id="arrow-storage">→</div>
+                        <div class="anim-box storage-box">
+                            <div class="box-label">Storage</div>
+                            <div class="storage-key">COUNTER</div>
+                            <div class="storage-value" id="storage-display">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="animation-steps" id="animation-steps">
+                        <div class="anim-step" id="step1">
+                            <span class="step-icon">📖</span> Leyendo valor del storage...
+                        </div>
+                        <div class="anim-step" id="step2">
+                            <span class="step-icon">➕</span> Incrementando: <span id="calc-display">0 + 1 = 1</span>
+                        </div>
+                        <div class="anim-step" id="step3">
+                            <span class="step-icon">💾</span> Guardando en storage...
+                        </div>
+                        <div class="anim-step" id="step4">
+                            <span class="step-icon">✅</span> Retornando: <span id="return-display">1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="animation-controls">
+                        <button class="anim-btn" onclick="playAnimation('increment')">▶️ Increment</button>
+                        <button class="anim-btn" onclick="playAnimation('decrement')">▶️ Decrement</button>
+                        <button class="anim-btn" onclick="playAnimation('reset')">▶️ Reset</button>
+                        <button class="anim-btn secondary" onclick="stepAnimation()">⏭️ Paso a Paso</button>
+                        <button class="anim-btn secondary" onclick="resetAnimation()">🔄 Resetear</button>
+                    </div>
+                    
+                    <div class="console-log" id="console-log">
+                        <div class="console-header">📟 Consola de Transacciones</div>
+                        <div id="console-output"></div>
+                    </div>
+                </div>
+                
+                <style>
+                    .animation-container {
+                        margin-top: 20px;
+                    }
+                    .animation-row {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 20px;
+                        margin: 20px 0;
+                        flex-wrap: wrap;
+                    }
+                    .anim-box {
+                        background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+                        border: 3px solid #4ecdc4;
+                        border-radius: 15px;
+                        padding: 25px;
+                        min-width: 150px;
+                        text-align: center;
+                        transition: all 0.3s;
+                    }
+                    .anim-box.highlight {
+                        border-color: #e94560;
+                        box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+                        transform: scale(1.05);
+                    }
+                    .box-label {
+                        color: #4ecdc4;
+                        font-size: 0.9em;
+                        margin-bottom: 10px;
+                    }
+                    .function-name {
+                        color: #fff;
+                        font-size: 1.5em;
+                        font-weight: bold;
+                    }
+                    .storage-key {
+                        color: #ffa657;
+                        font-size: 0.9em;
+                    }
+                    .storage-value {
+                        color: #4ecdc4;
+                        font-size: 3em;
+                        font-weight: bold;
+                        margin-top: 10px;
+                        transition: all 0.3s;
+                    }
+                    .storage-value.changed {
+                        color: #e94560;
+                        transform: scale(1.2);
+                    }
+                    .anim-arrow {
+                        color: #e94560;
+                        font-size: 2em;
+                        transition: all 0.3s;
+                    }
+                    .anim-arrow.active {
+                        animation: pulse 0.5s infinite;
+                    }
+                    @keyframes pulse {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0.3; }
+                    }
+                    .animation-steps {
+                        margin: 20px 0;
+                    }
+                    .anim-step {
+                        background: rgba(78, 205, 196, 0.1);
+                        border-left: 4px solid #333;
+                        padding: 12px 20px;
+                        margin: 8px 0;
+                        border-radius: 0 10px 10px 0;
+                        transition: all 0.3s;
+                        opacity: 0.5;
+                    }
+                    .anim-step.active {
+                        border-left-color: #4ecdc4;
+                        background: rgba(78, 205, 196, 0.2);
+                        opacity: 1;
+                        transform: translateX(10px);
+                    }
+                    .anim-step.complete {
+                        border-left-color: #4caf50;
+                        background: rgba(76, 175, 80, 0.1);
+                        opacity: 1;
+                    }
+                    .step-icon {
+                        margin-right: 10px;
+                    }
+                    .animation-controls {
+                        display: flex;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        margin: 20px 0;
+                    }
+                    .anim-btn {
+                        background: #4ecdc4;
+                        color: #1a1a2e;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-size: 1em;
+                        font-weight: bold;
+                        transition: all 0.3s;
+                    }
+                    .anim-btn:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+                    }
+                    .anim-btn.secondary {
+                        background: #e94560;
+                        color: #fff;
+                    }
+                    .anim-btn.secondary:hover {
+                        box-shadow: 0 0 15px rgba(233, 69, 96, 0.5);
+                    }
+                    .console-log {
+                        background: #0d1117;
+                        border-radius: 10px;
+                        margin-top: 20px;
+                        overflow: hidden;
+                    }
+                    .console-header {
+                        background: #161b22;
+                        padding: 10px 15px;
+                        color: #4ecdc4;
+                        font-weight: bold;
+                    }
+                    #console-output {
+                        padding: 15px;
+                        font-family: 'Fira Code', monospace;
+                        font-size: 0.9em;
+                        max-height: 150px;
+                        overflow-y: auto;
+                    }
+                    .console-line {
+                        margin: 5px 0;
+                        padding: 5px 10px;
+                        border-radius: 5px;
+                        animation: slideIn 0.3s ease;
+                    }
+                    @keyframes slideIn {
+                        from { opacity: 0; transform: translateX(-20px); }
+                        to { opacity: 1; transform: translateX(0); }
+                    }
+                    .console-line.invoke { background: rgba(78, 205, 196, 0.2); color: #4ecdc4; }
+                    .console-line.read { background: rgba(255, 166, 87, 0.2); color: #ffa657; }
+                    .console-line.write { background: rgba(233, 69, 96, 0.2); color: #e94560; }
+                    .console-line.result { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+                    .calc-display {
+                        color: #79c0ff;
+                        font-weight: bold;
+                    }
+                </style>
+                
+                <script>
+                    let currentValue = 0;
+                    let currentStep = 0;
+                    let isAnimating = false;
+                    let animationTimeout = null;
+                    
+                    function updateDisplay() {
+                        const display = document.getElementById('storage-display');
+                        display.textContent = currentValue;
+                        display.classList.add('changed');
+                        setTimeout(() => display.classList.remove('changed'), 300);
+                    }
+                    
+                    function highlightBox(boxClass) {
+                        document.querySelectorAll('.anim-box').forEach(b => b.classList.remove('highlight'));
+                        document.querySelectorAll('.anim-arrow').forEach(a => a.classList.remove('active'));
+                        if (boxClass) {
+                            document.querySelector(boxClass).classList.add('highlight');
+                        }
+                    }
+                    
+                    function setStep(stepNum, state) {
+                        const step = document.getElementById('step' + stepNum);
+                        if (step) {
+                            step.classList.remove('active', 'complete');
+                            if (state === 'active') step.classList.add('active');
+                            if (state === 'complete') step.classList.add('complete');
+                        }
+                    }
+                    
+                    function logToConsole(type, message) {
+                        const output = document.getElementById('console-output');
+                        const line = document.createElement('div');
+                        line.className = 'console-line ' + type;
+                        line.textContent = message;
+                        output.appendChild(line);
+                        output.scrollTop = output.scrollHeight;
+                    }
+                    
+                    function resetAnimation() {
+                        if (animationTimeout) clearTimeout(animationTimeout);
+                        currentValue = 0;
+                        currentStep = 0;
+                        isAnimating = false;
+                        document.getElementById('storage-display').textContent = '0';
+                        document.getElementById('console-output').innerHTML = '';
+                        document.querySelectorAll('.anim-step').forEach(s => s.classList.remove('active', 'complete'));
+                        highlightBox(null);
+                        logToConsole('result', '🔄 Animación reseteada. Valor actual: 0');
+                    }
+                    
+                    function playAnimation(action) {
+                        if (isAnimating) return;
+                        isAnimating = true;
+                        
+                        for (let i = 1; i <= 4; i++) setStep(i, null);
+                        
+                        let startValue = currentValue;
+                        let endValue;
+                        let calcText = '';
+                        let invokeName = action + '()';
+                        
+                        if (action === 'increment') {
+                            endValue = currentValue + 1;
+                            calcText = currentValue + ' + 1 = ' + endValue;
+                        } else if (action === 'decrement') {
+                            endValue = Math.max(0, currentValue - 1);
+                            calcText = currentValue + ' - 1 = ' + endValue;
+                        } else {
+                            endValue = 0;
+                            calcText = 'reset → 0';
+                        }
+                        
+                        logToConsole('invoke', '📤 Invocando: ' + invokeName);
+                        
+                        let step = 1;
+                        let delays = [800, 1000, 800, 800];
+                        
+                        function runStep() {
+                            if (step <= 4) {
+                                setStep(step, 'active');
+                                highlightBox('.contract-box');
+                                
+                                if (step === 1) {
+                                    logToConsole('read', '📖 Leyendo storage[COUNTER] → ' + currentValue);
+                                    document.getElementById('calc-display').textContent = currentValue;
+                                } else if (step === 2) {
+                                    highlightBox(null);
+                                    document.getElementById('arrow-storage').classList.add('active');
+                                    if (action !== 'reset') {
+                                        logToConsole('write', '➕ Calculando: ' + calcText);
+                                    } else {
+                                        logToConsole('write', '🔄 Reset: valor = 0');
+                                    }
+                                    document.getElementById('calc-display').textContent = calcText;
+                                } else if (step === 3) {
+                                    highlightBox('.storage-box');
+                                    logToConsole('write', '💾 Guardando en storage: COUNTER = ' + endValue);
+                                    currentValue = endValue;
+                                    updateDisplay();
+                                } else if (step === 4) {
+                                    document.getElementById('arrow-storage').classList.remove('active');
+                                    highlightBox('.contract-box');
+                                    logToConsole('result', '✅ Retornando: ' + endValue);
+                                    document.getElementById('return-display').textContent = endValue;
+                                }
+                                
+                                setTimeout(() => {
+                                    setStep(step, 'complete');
+                                    step++;
+                                    runStep();
+                                }, delays[step - 1]);
+                            } else {
+                                isAnimating = false;
+                                highlightBox(null);
+                            }
+                        }
+                        
+                        runStep();
+                    }
+                    
+                    function stepAnimation() {
+                        if (currentStep === 0) {
+                            playAnimation('increment');
+                        }
+                    }
+                    
+                    // Initialize
+                    resetAnimation();
+                </script>
             </div>
 
             <h3>Funciones del Contrato</h3>
