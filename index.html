@@ -759,16 +759,16 @@ mkdir -p .cargo
                     
                     <div class="animation-steps" id="animation-steps">
                         <div class="anim-step" id="step1">
-                            <span class="step-icon">📖</span> <strong>Paso 1:</strong> Leyendo valor del storage (líneas 2-4)
+                            <span class="step-icon">📖</span> <strong>Paso 1:</strong> Leyendo del storage
                         </div>
                         <div class="anim-step" id="step2">
-                            <span class="step-icon">➕</span> <strong>Paso 2:</strong> Operando (línea 5)
+                            <span class="step-icon">➕</span> <strong>Paso 2:</strong> Operando
                         </div>
                         <div class="anim-step" id="step3">
-                            <span class="step-icon">💾</span> <strong>Paso 3:</strong> Guardando en storage (líneas 6-7)
+                            <span class="step-icon">💾</span> <strong>Paso 3:</strong> Guardando en storage
                         </div>
                         <div class="anim-step" id="step4">
-                            <span class="step-icon">✅</span> <strong>Paso 4:</strong> Retornando (línea 8)
+                            <span class="step-icon">✅</span> <strong>Paso 4:</strong> Retornando valor
                         </div>
                     </div>
                     
@@ -1040,16 +1040,21 @@ mkdir -p .cargo
                     }
                     
                     function highlightCodeLines(lineIds, state) {
-                        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
                         if (state === 'active') {
                             lineIds.forEach(id => {
                                 const el = document.getElementById('code-' + id);
-                                if (el) el.classList.add('active');
+                                if (el) {
+                                    el.classList.remove('complete');
+                                    el.classList.add('active');
+                                }
                             });
                         } else if (state === 'complete') {
                             lineIds.forEach(id => {
                                 const el = document.getElementById('code-' + id);
-                                if (el) el.classList.add('complete');
+                                if (el) {
+                                    el.classList.remove('active');
+                                    el.classList.add('complete');
+                                }
                             });
                         }
                     }
@@ -1091,8 +1096,8 @@ mkdir -p .cargo
                         document.getElementById('storage-display').textContent = '0';
                         document.getElementById('console-output').innerHTML = '';
                         document.querySelectorAll('.anim-step').forEach(s => s.classList.remove('active', 'complete'));
+                        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
                         highlightBox(null);
-                        highlightCodeLines([], null);
                         updateCurrentLine('Ninguna');
                         logToConsole('result', '🔄 Animación reseteada. Valor actual: 0');
                     }
@@ -1104,7 +1109,6 @@ mkdir -p .cargo
                         for (let i = 1; i <= 4; i++) setStep(i, null);
                         document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
                         
-                        let startValue = currentValue;
                         let endValue;
                         let calcText = '';
                         let invokeName = action + '()';
@@ -1113,24 +1117,24 @@ mkdir -p .cargo
                         if (action === 'increment') {
                             endValue = currentValue + 1;
                             calcText = currentValue + ' + 1 = ' + endValue;
-                            codeLines = {1: [1,2,3,4], 2: [5], 3: [6,7], 4: [8]};
+                            codeLines = {1: [2,3,4], 2: [5], 3: [6,7], 4: [8]};
                             codeText = {1: 'env.storage().get(&COUNTER)', 2: 'count += 1', 3: 'env.storage().set()', 4: 'return count'};
                         } else if (action === 'decrement') {
                             endValue = Math.max(0, currentValue - 1);
                             calcText = currentValue + ' - 1 = ' + endValue;
-                            codeLines = {1: [10,11,12], 2: [13], 3: [14,15], 4: [16]};
+                            codeLines = {1: [11,12], 2: [13], 3: [14,15], 4: [16]};
                             codeText = {1: 'env.storage().get(&COUNTER)', 2: 'count.saturating_sub(1)', 3: 'env.storage().set()', 4: 'return new_count'};
                         } else {
                             endValue = 0;
                             calcText = 'reset → 0';
-                            codeLines = {1: [], 2: [], 3: [18,19,20], 4: []};
+                            codeLines = {1: [], 2: [], 3: [19,20], 4: []};
                             codeText = {1: 'Leyendo valor actual', 2: 'Procesando reset', 3: 'env.storage().set(COUNTER, 0)', 4: 'Fin'};
                         }
                         
                         logToConsole('invoke', '📤 Invocando: ' + invokeName);
                         
                         let step = 1;
-                        let delays = [1000, 1200, 1000, 1000];
+                        const delays = [1000, 1000, 1000, 800];
                         
                         function runStep() {
                             if (step <= 4) {
@@ -1139,7 +1143,9 @@ mkdir -p .cargo
                                 
                                 highlightCodeLines(codeLines[step] || [], 'active');
                                 updateCurrentLine(codeText[step] || '');
-                                scrollCodeToLine(codeLines[step]?.[0] || 1);
+                                if (codeLines[step] && codeLines[step].length > 0) {
+                                    scrollCodeToLine(codeLines[step][0]);
+                                }
                                 
                                 if (step === 1) {
                                     logToConsole('read', '📖 Leyendo storage[COUNTER] → ' + currentValue);
