@@ -493,7 +493,35 @@ mkdir -p src</code>
 <span class="type">lto</span> = <span class="keyword">true</span></code>
             </div>
 
-            <h3>3. Código del Contrato (src/lib.rs)</h3>
+            <h3>3. Configuración Cargo (.cargo/config.toml)</h3>
+            <div class="code-block">
+                <code><span class="comment"># Crear directorio .cargo</span>
+mkdir -p .cargo
+
+<span class="comment"># Archivo: .cargo/config.toml</span>
+<span class="attr">[target.wasm32v1-none]</span>
+<span class="type">rustflags</span> = [<span class="string">"-C"</span>, <span class="string">"link-arg=--export-table"</span>]</code>
+            </div>
+
+            <h3>5. Tests (src/test.rs)</h3>
+            <div class="code-block">
+                <code><span class="attr">#[cfg(test)]</span>
+<span class="keyword">mod test</span> {
+    <span class="keyword">use super::*</span>;
+    <span class="keyword">use</span> soroban_sdk::Env;
+
+    <span class="attr">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_increment</span>() { ... }
+    <span class="attr">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_decrement</span>() { ... }
+    <span class="attr">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_reset</span>() { ... }
+    <span class="attr">#[test]</span>
+    <span class="keyword">fn</span> <span class="function">test_get_initial_value</span>() { ... }
+}</code>
+            </div>
+
+            <h3>6. Código del Contrato (src/lib.rs)</h3>
             <div class="code-block">
                 <code><span class="attr">#![no_std]</span>
 <span class="keyword">use</span> soroban_sdk::{contract, contractimpl, symbol_short, Env, Symbol};
@@ -546,7 +574,7 @@ mkdir -p src</code>
     <span class="attr">#[test]</span>
     <span class="keyword">fn</span> <span class="function">test_increment</span>() {
         <span class="keyword">let</span> env = Env::default();
-        <span class="keyword">let</span> contract_id = env.register_contract(<span class="type">None</span>, <span class="function">ContadorContract</span>);
+        <span class="keyword">let</span> contract_id = env.register(<span class="function">ContadorContract</span>, ());
         <span class="keyword">let</span> client = <span class="function">ContadorContractClient</span>::new(&env, &contract_id);
 
         assert_eq!(client.increment(), <span class="number">1</span>);
@@ -557,7 +585,7 @@ mkdir -p src</code>
     <span class="attr">#[test]</span>
     <span class="keyword">fn</span> <span class="function">test_decrement</span>() {
         <span class="keyword">let</span> env = Env::default();
-        <span class="keyword">let</span> contract_id = env.register_contract(<span class="type">None</span>, <span class="function">ContadorContract</span>);
+        <span class="keyword">let</span> contract_id = env.register(<span class="function">ContadorContract</span>, ());
         <span class="keyword">let</span> client = <span class="function">ContadorContractClient</span>::new(&env, &contract_id);
 
         client.increment();
@@ -906,27 +934,36 @@ curl -X POST http://localhost:3000/contador/reset</code>
             <h2>📋 Comandos Rápidos</h2>
 
             <div class="code-block">
-                <code><span class="comment"># ========== COMPILACIÓN ==========</span>
-cargo build --target wasm32v1-none --release
+                <code><span class="comment"># ========== INICIALIZAR PROYECTO ==========</span>
+mkdir -p .cargo
+cat > .cargo/config.toml << 'EOF'
+[target.wasm32v1-none]
+rustflags = ["-C", "link-arg=--export-table"]
+EOF
+
+<span class="comment"># ========== COMPILACIÓN ==========</span>
 cargo test
-soroban contract optimize --wasm target/wasm32v1-none/release/contador.wasm
+cargo build --target wasm32v1-none --release
 
 <span class="comment"># ========== REDES ==========</span>
-soroban config network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
-soroban config network list
+soroban config network add testnet \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase "Test SDF Network ; September 2015"
 
 <span class="comment"># ========== IDENTIDADES ==========</span>
 soroban config identity generate estudiante
-soroban config identity address estudiante
 
 <span class="comment"># ========== DESPLIEGUE ==========</span>
-soroban contract deploy --wasm target/wasm32v1-none/release/contador.wasm --network testnet --source estudiante
+soroban contract deploy \
+  --wasm target/wasm32v1-none/release/contador.wasm \
+  --network testnet \
+  --source estudiante
 
 <span class="comment"># ========== INVOCAR ==========</span>
-stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- get
-stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- increment
-stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- decrement
-stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -- reset</code>
+soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- get
+soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- increment
+soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- decrement
+soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- reset</code>
             </div>
         </section>
 
@@ -935,6 +972,14 @@ stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -
 
             <div class="card">
                 <h4>Error: target not found</h4>
+                <div class="code-block">
+                    <code>rustup target add wasm32v1-none</code>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>Error: wasm32-unknown-unknown unsupported</h4>
+                <p>Usar <code>wasm32v1-none</code> en lugar de <code>wasm32-unknown-unknown</code></p>
                 <div class="code-block">
                     <code>rustup target add wasm32v1-none</code>
                 </div>
@@ -957,7 +1002,7 @@ stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -
 
             <div class="card">
                 <h4>Tests fallan</h4>
-                <p>Revisa que las dependencias en Cargo.toml estén actualizadas.</p>
+                <p>Revisa que uses <code>env.register(ContadorContract, ())</code> en lugar de <code>register_contract</code></p>
             </div>
         </section>
 
@@ -995,8 +1040,8 @@ stellar contract invoke --id CONTRACT_ID --source estudiante --network testnet -
     </div>
 
     <footer>
-        <p>Smart Contracts Soroban - Tutorial 2024</p>
-        <p>Desarrollado para el Sprint 3 de Blockchain</p>
+        <p>Smart Contracts Soroban - Tutorial 2026</p>
+        <p>Desarrollado para aprender Soroban</p>
         <br>
         <a href="#" class="btn">Volver arriba</a>
     </footer>
