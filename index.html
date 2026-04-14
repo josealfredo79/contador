@@ -354,6 +354,7 @@
             <li><a href="#intro">Introducción</a></li>
             <li><a href="#instalacion">Instalación</a></li>
             <li><a href="#contrato">Contrato</a></li>
+            <li><a href="#explicacion">Explicación</a></li>
             <li><a href="#compilacion">Compilación</a></li>
             <li><a href="#tests">Tests</a></li>
             <li><a href="#despliegue">Despliegue</a></li>
@@ -373,6 +374,7 @@
                     <li>→ <a href="#intro">1. Introducción</a></li>
                     <li>→ <a href="#instalacion">2. Instalación del Entorno</a></li>
                     <li>→ <a href="#contrato">3. Crear el Contrato</a></li>
+                    <li>→ <a href="#explicacion">3b. Explicación del Código</a></li>
                     <li>→ <a href="#compilacion">4. Compilación</a></li>
                     <li>→ <a href="#tests">5. Pruebas Unitarias</a></li>
                     <li>→ <a href="#despliegue">6. Despliegue en TestNet</a></li>
@@ -596,6 +598,118 @@ mkdir -p .cargo
         assert_eq!(client.decrement(), <span class="number">0</span>);
     }
 }</code>
+            </div>
+
+            <h3 id="explicacion">Explicación Línea por Línea</h3>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>#![no_std]</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Indica que el código NO usa la librería estándar de Rust. 
+                    <span class="status-badge status-info">Obligatorio para Soroban</span> - reduce el tamaño del binario WASM.
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>use soroban_sdk::{...}</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Importa las herramientas del SDK de Soroban:
+                    <br>• <code>contract</code> - Macro para definir un contrato
+                    <br>• <code>contractimpl</code> - Macro para implementar funciones
+                    <br>• <code>symbol_short</code> - Macro para crear claves de storage optimizadas
+                    <br>• <code>Env</code> - El entorno de ejecución de Soroban
+                    <br>• <code>Symbol</code> - Tipo para claves de almacenamiento
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>const COUNTER: Symbol</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Define la <strong>clave</strong> para guardar el valor en el storage. 
+                    <code>symbol_short!</code> crea un identificador de máximo 10 caracteres (optimizado para storage).
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>#[contract]</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Macro que marca la estructura como un <strong>smart contract</strong>. 
+                    <code>pub struct</code> hace que sea accesible públicamente.
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>#[contractimpl]</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Macro que implementa las funciones del contrato. 
+                    Todo dentro de este bloque será expuesto como funciones del smart contract.
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <strong>pub fn increment(env: Env) -> u32</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Define la función <code>increment</code>:
+                    <br>• <code>pub fn</code> - Función pública (accesible desde fuera)
+                    <br>• <code>env: Env</code> - Parámetro obligatorio de Soroban
+                    <br>• <code>-> u32</code> - Retorna un número de 32 bits sin signo
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">7</span>
+                <strong>env.storage().instance().get(&COUNTER)</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Lee el valor actual del contador desde el storage:
+                    <br>• <code>env.storage()</code> - Accede al almacenamiento del contrato
+                    <br>• <code>.instance()</code> - Storage específico para esta instancia
+                    <br>• <code>.get(&COUNTER)</code> - Recupera el valor con la clave COUNTER
+                    <br>• <code>.unwrap_or(0)</code> - Si no existe, retorna 0 (valor inicial)
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">8</span>
+                <strong>count += 1</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Incrementa el contador en 1. La variable debe ser <code>mut</code> (mutable).
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">9</span>
+                <strong>env.storage().instance().set(&COUNTER, &count)</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    Guarda el nuevo valor en el storage:
+                    <br>• <code>.set(&COUNTER, &count)</code> - Guarda el valor con la clave COUNTER
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">10</span>
+                <strong>saturating_sub(1)</strong>
+                <p style="margin-left: 40px; margin-top: 10px;">
+                    En la función <code>decrement</code>, evita el <strong>underflow</strong>:
+                    <br>• Si count es 0, retorna 0 (no valores negativos)
+                    <br>• Previene errores de wraparound en enteros
+                </p>
+            </div>
+
+            <div class="card">
+                <h4>📊 Flujo de Ejecución de increment()</h4>
+                <pre style="background: #0d1117; padding: 15px; border-radius: 5px; margin-top: 10px;">
+┌─────────────────────────────────────────┐
+│ 1. Lee valor: storage[COUNTER] → 0      │
+│ 2. Incrementa: 0 + 1 = 1               │
+│ 3. Guarda: storage[COUNTER] = 1         │
+│ 4. Retorna: 1                          │
+└─────────────────────────────────────────┘</pre>
             </div>
 
             <h3>Funciones del Contrato</h3>
