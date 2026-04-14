@@ -720,18 +720,55 @@ mkdir -p .cargo
                         </div>
                     </div>
                     
+                    <div class="code-execution-panel">
+                        <div class="code-header">💻 Código del Contrato</div>
+                        <div class="code-lines" id="code-lines">
+                            <div class="code-line" id="code-1"><span class="line-num">1</span><span class="line-code"><span class="code-keyword">pub fn</span> <span class="code-fn">increment</span>(env: Env) -> u32 {</span></div>
+                            <div class="code-line" id="code-2"><span class="line-num">2</span><span class="line-code">    <span class="code-keyword">let mut</span> count: u32 = env.storage()</span></div>
+                            <div class="code-line" id="code-3"><span class="line-num">3</span><span class="line-code">        .instance().<span class="code-fn">get</span>(&COUNTER)</span></div>
+                            <div class="code-line" id="code-4"><span class="line-num">4</span><span class="line-code">        .<span class="code-fn">unwrap_or</span>(<span class="code-num">0</span>);</span></div>
+                            <div class="code-line" id="code-5"><span class="line-num">5</span><span class="line-code">    count <span class="code-op">+=</span> <span class="code-num">1</span>;</span></div>
+                            <div class="code-line" id="code-6"><span class="line-num">6</span><span class="line-code">    env.storage().instance().<span class="code-fn">set</span>(&COUNTER,</span></div>
+                            <div class="code-line" id="code-7"><span class="line-num">7</span><span class="line-code">        &count);</span></div>
+                            <div class="code-line" id="code-8"><span class="line-num">8</span><span class="line-code">    <span class="code-keyword">return</span> count;</span></div>
+                            <div class="code-line" id="code-9"><span class="line-num">9</span><span class="line-code">}</span></div>
+                            
+                            <div class="code-line separator"><span class="line-num"></span><span class="line-code">// --- decrement() ---</span></div>
+                            
+                            <div class="code-line" id="code-10"><span class="line-num">10</span><span class="line-code"><span class="code-keyword">pub fn</span> <span class="code-fn">decrement</span>(env: Env) -> u32 {</span></div>
+                            <div class="code-line" id="code-11"><span class="line-num">11</span><span class="line-code">    <span class="code-keyword">let</span> count = env.storage().instance()</span></div>
+                            <div class="code-line" id="code-12"><span class="line-num">12</span><span class="line-code">        .<span class="code-fn">get</span>(&COUNTER).<span class="code-fn">unwrap_or</span>(<span class="code-num">0</span>);</span></div>
+                            <div class="code-line" id="code-13"><span class="line-num">13</span><span class="line-code">    <span class="code-keyword">let</span> new_count = count.<span class="code-fn">saturating_sub</span>(<span class="code-num">1</span>);</span></div>
+                            <div class="code-line" id="code-14"><span class="line-num">14</span><span class="line-code">    env.storage().instance().<span class="code-fn">set</span>(&COUNTER,</span></div>
+                            <div class="code-line" id="code-15"><span class="line-num">15</span><span class="line-code">        &new_count);</span></div>
+                            <div class="code-line" id="code-16"><span class="line-num">16</span><span class="line-code">    <span class="code-keyword">return</span> new_count;</span></div>
+                            <div class="code-line" id="code-17"><span class="line-num">17</span><span class="line-code">}</span></div>
+                            
+                            <div class="code-line separator"><span class="line-num"></span><span class="line-code">// --- reset() ---</span></div>
+                            
+                            <div class="code-line" id="code-18"><span class="line-num">18</span><span class="line-code"><span class="code-keyword">pub fn</span> <span class="code-fn">reset</span>(env: Env) {</span></div>
+                            <div class="code-line" id="code-19"><span class="line-num">19</span><span class="line-code">    env.storage().instance().<span class="code-fn">set</span>(&COUNTER,</span></div>
+                            <div class="code-line" id="code-20"><span class="line-num">20</span><span class="line-code">        &<span class="code-num">0u32</span>);</span></div>
+                            <div class="code-line" id="code-21"><span class="line-num">21</span><span class="line-code">}</span></div>
+                        </div>
+                        <div class="current-code-line" id="current-code-line">
+                            <span class="current-label">▶ Ejecutando:</span>
+                            <span id="current-line-text">Ninguna</span>
+                        </div>
+                    </div>
+                    
                     <div class="animation-steps" id="animation-steps">
                         <div class="anim-step" id="step1">
-                            <span class="step-icon">📖</span> Leyendo valor del storage...
+                            <span class="step-icon">📖</span> <strong>Paso 1:</strong> Leyendo valor del storage (líneas 2-4)
                         </div>
                         <div class="anim-step" id="step2">
-                            <span class="step-icon">➕</span> Incrementando: <span id="calc-display">0 + 1 = 1</span>
+                            <span class="step-icon">➕</span> <strong>Paso 2:</strong> Operando (línea 5)
                         </div>
                         <div class="anim-step" id="step3">
-                            <span class="step-icon">💾</span> Guardando en storage...
+                            <span class="step-icon">💾</span> <strong>Paso 3:</strong> Guardando en storage (líneas 6-7)
                         </div>
                         <div class="anim-step" id="step4">
-                            <span class="step-icon">✅</span> Retornando: <span id="return-display">1</span>
+                            <span class="step-icon">✅</span> <strong>Paso 4:</strong> Retornando (línea 8)
                         </div>
                     </div>
                     
@@ -904,6 +941,81 @@ mkdir -p .cargo
                         color: #79c0ff;
                         font-weight: bold;
                     }
+                    .code-execution-panel {
+                        background: #0d1117;
+                        border-radius: 10px;
+                        margin: 20px 0;
+                        overflow: hidden;
+                        border: 2px solid #4ecdc4;
+                    }
+                    .code-header {
+                        background: #161b22;
+                        padding: 10px 15px;
+                        color: #4ecdc4;
+                        font-weight: bold;
+                        border-bottom: 1px solid #333;
+                    }
+                    .code-lines {
+                        padding: 10px;
+                        font-family: 'Fira Code', 'Consolas', monospace;
+                        font-size: 0.85em;
+                        max-height: 350px;
+                        overflow-y: auto;
+                        line-height: 1.6;
+                    }
+                    .code-line {
+                        display: flex;
+                        padding: 3px 10px;
+                        border-radius: 3px;
+                        transition: all 0.3s;
+                    }
+                    .code-line.active {
+                        background: rgba(233, 69, 96, 0.3);
+                        border-left: 3px solid #e94560;
+                        animation: lineGlow 1s ease-in-out;
+                    }
+                    @keyframes lineGlow {
+                        0% { background: rgba(233, 69, 96, 0.6); }
+                        100% { background: rgba(233, 69, 96, 0.3); }
+                    }
+                    .code-line.complete {
+                        background: rgba(76, 175, 80, 0.2);
+                        border-left: 3px solid #4caf50;
+                    }
+                    .code-line.separator {
+                        background: transparent;
+                        color: #666;
+                        margin: 10px 0;
+                        font-style: italic;
+                    }
+                    .line-num {
+                        color: #666;
+                        min-width: 30px;
+                        text-align: right;
+                        margin-right: 15px;
+                        user-select: none;
+                    }
+                    .line-code {
+                        color: #c9d1d9;
+                    }
+                    .code-keyword { color: #ff7b72; }
+                    .code-fn { color: #d2a8ff; }
+                    .code-num { color: #79c0ff; }
+                    .code-op { color: #ffa657; }
+                    .current-code-line {
+                        background: #161b22;
+                        padding: 10px 15px;
+                        color: #4ecdc4;
+                        border-top: 1px solid #333;
+                        font-family: 'Fira Code', monospace;
+                    }
+                    .current-label {
+                        margin-right: 10px;
+                    }
+                    #current-line-text {
+                        color: #e94560;
+                        font-weight: bold;
+                    }
                 </style>
                 
                 <script>
@@ -924,6 +1036,32 @@ mkdir -p .cargo
                         document.querySelectorAll('.anim-arrow').forEach(a => a.classList.remove('active'));
                         if (boxClass) {
                             document.querySelector(boxClass).classList.add('highlight');
+                        }
+                    }
+                    
+                    function highlightCodeLines(lineIds, state) {
+                        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
+                        if (state === 'active') {
+                            lineIds.forEach(id => {
+                                const el = document.getElementById('code-' + id);
+                                if (el) el.classList.add('active');
+                            });
+                        } else if (state === 'complete') {
+                            lineIds.forEach(id => {
+                                const el = document.getElementById('code-' + id);
+                                if (el) el.classList.add('complete');
+                            });
+                        }
+                    }
+                    
+                    function updateCurrentLine(text) {
+                        document.getElementById('current-line-text').textContent = text;
+                    }
+                    
+                    function scrollCodeToLine(lineId) {
+                        const el = document.getElementById('code-' + lineId);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     }
                     
@@ -954,6 +1092,8 @@ mkdir -p .cargo
                         document.getElementById('console-output').innerHTML = '';
                         document.querySelectorAll('.anim-step').forEach(s => s.classList.remove('active', 'complete'));
                         highlightBox(null);
+                        highlightCodeLines([], null);
+                        updateCurrentLine('Ninguna');
                         logToConsole('result', '🔄 Animación reseteada. Valor actual: 0');
                     }
                     
@@ -962,32 +1102,44 @@ mkdir -p .cargo
                         isAnimating = true;
                         
                         for (let i = 1; i <= 4; i++) setStep(i, null);
+                        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active', 'complete'));
                         
                         let startValue = currentValue;
                         let endValue;
                         let calcText = '';
                         let invokeName = action + '()';
                         
+                        let codeLines, codeText;
                         if (action === 'increment') {
                             endValue = currentValue + 1;
                             calcText = currentValue + ' + 1 = ' + endValue;
+                            codeLines = {1: [1,2,3,4], 2: [5], 3: [6,7], 4: [8]};
+                            codeText = {1: 'env.storage().get(&COUNTER)', 2: 'count += 1', 3: 'env.storage().set()', 4: 'return count'};
                         } else if (action === 'decrement') {
                             endValue = Math.max(0, currentValue - 1);
                             calcText = currentValue + ' - 1 = ' + endValue;
+                            codeLines = {1: [10,11,12], 2: [13], 3: [14,15], 4: [16]};
+                            codeText = {1: 'env.storage().get(&COUNTER)', 2: 'count.saturating_sub(1)', 3: 'env.storage().set()', 4: 'return new_count'};
                         } else {
                             endValue = 0;
                             calcText = 'reset → 0';
+                            codeLines = {1: [], 2: [], 3: [18,19,20], 4: []};
+                            codeText = {1: 'Leyendo valor actual', 2: 'Procesando reset', 3: 'env.storage().set(COUNTER, 0)', 4: 'Fin'};
                         }
                         
                         logToConsole('invoke', '📤 Invocando: ' + invokeName);
                         
                         let step = 1;
-                        let delays = [800, 1000, 800, 800];
+                        let delays = [1000, 1200, 1000, 1000];
                         
                         function runStep() {
                             if (step <= 4) {
                                 setStep(step, 'active');
                                 highlightBox('.contract-box');
+                                
+                                highlightCodeLines(codeLines[step] || [], 'active');
+                                updateCurrentLine(codeText[step] || '');
+                                scrollCodeToLine(codeLines[step]?.[0] || 1);
                                 
                                 if (step === 1) {
                                     logToConsole('read', '📖 Leyendo storage[COUNTER] → ' + currentValue);
@@ -1015,6 +1167,7 @@ mkdir -p .cargo
                                 
                                 setTimeout(() => {
                                     setStep(step, 'complete');
+                                    highlightCodeLines(codeLines[step] || [], 'complete');
                                     step++;
                                     runStep();
                                 }, delays[step - 1]);
