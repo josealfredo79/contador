@@ -120,6 +120,65 @@
             color: #c9d1d9;
         }
 
+        .copy-code-btn {
+            background: #4ecdc4;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-code-btn:hover {
+            background: #45b7aa;
+            transform: scale(1.05);
+        }
+
+        .copy-code-btn.copied {
+            background: #4caf50;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+            padding: 10px 15px;
+            border-radius: 10px 10px 0 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .code-header-label {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .clean-code-block {
+            background: #0d1117;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid #4caf50;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .clean-code-block pre {
+            margin: 0;
+            color: #c9d1d9;
+        }
+
+        .clean-code-block code {
+            color: #c9d1d9;
+        }
+
         .comment { color: #8b949e; }
         .keyword { color: #ff7b72; }
         .string { color: #a5d6ff; }
@@ -426,10 +485,20 @@ cargo --version</code>
 
             <h3>2. Instalar Stellar CLI (Soroban)</h3>
             <div class="code-block">
-                <code>cargo install --locked soroban-cli
+                <code><span class="comment"># NOTA: Usa 'stellar' en lugar de 'soroban' para CLI 25.x+</span>
+cargo install --locked stellar-cli
 
 <span class="comment"># Verificar versión</span>
-soroban --version</code>
+stellar --version</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Comandos para copiar</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>cargo install --locked stellar-cli
+stellar --version</code></pre>
             </div>
 
             <h3>3. Agregar Target WASM</h3>
@@ -497,6 +566,33 @@ mkdir -p src</code>
 <span class="type">lto</span> = <span class="keyword">true</span></code>
             </div>
 
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Cargo.toml para copiar</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>[package]
+name = "contador"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = { version = "25.3.0", features = ["alloc"] }
+
+[dev-dependencies]
+soroban-sdk = { version = "25.3.0", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+strip = "symbols"
+panic = "abort"
+lto = true</code></pre>
+            </div>
+
             <h3>3. Configuración Cargo (.cargo/config.toml)</h3>
             <div class="code-block">
                 <code><span class="comment"># Crear directorio .cargo</span>
@@ -505,6 +601,42 @@ mkdir -p .cargo
 <span class="comment"># Archivo: .cargo/config.toml</span>
 <span class="attr">[target.wasm32v1-none]</span>
 <span class="type">rustflags</span> = [<span class="string">"-C"</span>, <span class="string">"link-arg=--export-table"</span>]</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Crear archivos</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>mkdir -p .cargo src
+
+cat > .cargo/config.toml << 'EOF'
+[target.wasm32v1-none]
+rustflags = ["-C", "link-arg=--export-table"]
+EOF
+
+cat > Cargo.toml << 'EOF'
+[package]
+name = "contador"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = { version = "25.3.0", features = ["alloc"] }
+
+[dev-dependencies]
+soroban-sdk = { version = "25.3.0", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+strip = "symbols"
+panic = "abort"
+lto = true
+EOF</code></pre>
             </div>
 
             <h3>5. Tests (src/test.rs)</h3>
@@ -600,6 +732,85 @@ mkdir -p .cargo
         assert_eq!(client.decrement(), <span class="number">0</span>);
     }
 }</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 src/lib.rs para copiar</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>#![no_std]
+use soroban_sdk::{contract, contractimpl, symbol_short, Env, Symbol};
+
+const COUNTER: Symbol = symbol_short!("COUNTER");
+
+#[contract]
+pub struct ContadorContract;
+
+#[contractimpl]
+impl ContadorContract {
+    pub fn increment(env: Env) -> u32 {
+        let mut count: u32 = env.storage()
+            .instance()
+            .get(&COUNTER)
+            .unwrap_or(0);
+        count += 1;
+        env.storage().instance().set(&COUNTER, &count);
+        count
+    }
+
+    pub fn decrement(env: Env) -> u32 {
+        let count: u32 = env.storage()
+            .instance()
+            .get(&COUNTER)
+            .unwrap_or(0);
+        let new_count = count.saturating_sub(1);
+        env.storage().instance().set(&COUNTER, &new_count);
+        new_count
+    }
+
+    pub fn get(env: Env) -> u32 {
+        env.storage()
+            .instance()
+            .get(&COUNTER)
+            .unwrap_or(0)
+    }
+
+    pub fn reset(env: Env) {
+        env.storage().instance().set(&COUNTER, &0u32);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use soroban_sdk::Env;
+
+    #[test]
+    fn test_increment() {
+        let env = Env::default();
+        let contract_id = env.register(ContadorContract, ());
+        let client = ContadorContractClient::new(&env, &contract_id);
+
+        assert_eq!(client.increment(), 1);
+        assert_eq!(client.increment(), 2);
+        assert_eq!(client.get(), 2);
+    }
+
+    #[test]
+    fn test_decrement() {
+        let env = Env::default();
+        let contract_id = env.register(ContadorContract, ());
+        let client = ContadorContractClient::new(&env, &contract_id);
+
+        client.increment();
+        client.increment();
+        client.increment();
+        assert_eq!(client.get(), 3);
+        assert_eq!(client.decrement(), 2);
+        assert_eq!(client.decrement(), 0);
+    }
+}</code></pre>
             </div>
 
             <h3 id="explicacion">Explicación Línea por Línea</h3>
@@ -775,9 +986,7 @@ mkdir -p .cargo
                     <div class="animation-controls">
                         <button class="anim-btn" onclick="playAnimation('increment')">▶️ Increment</button>
                         <button class="anim-btn" onclick="playAnimation('decrement')">▶️ Decrement</button>
-                        <button class="anim-btn" onclick="playAnimation('reset')">▶️ Reset</button>
-                        <button class="anim-btn secondary" onclick="stepAnimation()">⏭️ Paso a Paso</button>
-                        <button class="anim-btn secondary" onclick="resetAnimation()">🔄 Resetear</button>
+                        <button class="anim-btn" onclick="playAnimation('reset')">🔄 Reset</button>
                     </div>
                     
                     <div class="console-log" id="console-log">
@@ -1264,6 +1473,18 @@ cargo build --target wasm32v1-none
 cargo build --target wasm32v1-none --release</code>
             </div>
 
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Comandos para copiar</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code># Desarrollo (más rápido)
+cargo build --target wasm32v1-none
+
+# Producción (optimizado)
+cargo build --target wasm32v1-none --release</code></pre>
+            </div>
+
             <div class="step">
                 <span class="step-number">2</span>
                 <strong>Verificar archivo WASM</strong>
@@ -1273,6 +1494,14 @@ cargo build --target wasm32v1-none --release</code>
 ls -lh target/wasm32v1-none/release/contador.wasm
 
 <span class="comment"># Output esperado: ~1KB (optimizado)</span></code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Verificar compilación</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>ls -lh target/wasm32v1-none/release/contador.wasm</code></pre>
             </div>
 
             <div class="card">
@@ -1296,6 +1525,21 @@ cargo test -- --nocapture
 
 <span class="comment"># Ejecutar un test específico</span>
 cargo test test_increment</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Comandos de prueba</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code># Ejecutar todos los tests
+cargo test
+
+# Con output detallado
+cargo test -- --nocapture
+
+# Ejecutar un test específico
+cargo test test_increment</code></pre>
             </div>
 
             <h3>Resultados de Tests</h3>
@@ -1342,17 +1586,34 @@ cargo test test_increment</code>
         <section id="despliegue">
             <h2>🚀 Despliegue en TestNet</h2>
 
+            <div class="card">
+                <h4>⚠️ IMPORTANTE: Usa 'stellar' en lugar de 'soroban'</h4>
+                <p>En la CLI 25.x+ todos los comandos usan <code>stellar</code> en lugar de <code>soroban</code></p>
+            </div>
+
             <div class="step">
                 <span class="step-number">1</span>
                 <strong>Configurar red TestNet</strong>
             </div>
             <div class="code-block">
-                <code>soroban config network add testnet \
+                <code>stellar network add testnet \
   --rpc-url https://soroban-testnet.stellar.org \
   --network-passphrase <span class="string">"Test SDF Network ; September 2015"</span>
 
 <span class="comment"># Ver redes configuradas</span>
-soroban config network list</code>
+stellar network ls</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Configurar red</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>stellar network add testnet \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase "Test SDF Network ; September 2015"
+
+stellar network ls</code></pre>
             </div>
 
             <div class="step">
@@ -1361,13 +1622,23 @@ soroban config network list</code>
             </div>
             <div class="code-block">
                 <code><span class="comment"># Crear nueva identidad</span>
-soroban config identity generate estudiante
+stellar keys generate estudiante
 
 <span class="comment"># Ver dirección pública</span>
-soroban config identity address estudiante
+stellar keys address estudiante
 
 <span class="comment"># Listar identidades</span>
-soroban config identity list</code>
+stellar keys ls</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Generar identidad</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>stellar keys generate estudiante
+stellar keys address estudiante
+stellar keys ls</code></pre>
             </div>
 
             <div class="step">
@@ -1375,11 +1646,22 @@ soroban config identity list</code>
                 <strong>Obtener XLM de prueba</strong>
             </div>
             <div class="code-block">
-                <code><span class="comment"># Solicitar XLM de testnet</span>
+                <code><span class="comment"># Solicitar XLM de testnet (reemplaza TU_DIRECCION)</span>
+stellar keys fund estudiante --network testnet
+
+<span class="comment"># O usar Friendbot directamente</span>
 curl <span class="string">"https://friendbot.stellar.org/?addr=TU_DIRECCION"</span>
 
 <span class="comment"># O usar Stellar Laboratory</span>
 <span class="comment"># https://laboratory.stellar.org/#account-creator</span></code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Solicitar XLM de prueba</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>stellar keys fund estudiante --network testnet</code></pre>
             </div>
 
             <div class="step">
@@ -1387,13 +1669,24 @@ curl <span class="string">"https://friendbot.stellar.org/?addr=TU_DIRECCION"</sp
                 <strong>Desplegar contrato</strong>
             </div>
             <div class="code-block">
-                <code>soroban contract deploy \
+                <code>stellar contract deploy \
   --wasm target/wasm32v1-none/release/contador.wasm \
   --network testnet \
   --source estudiante
 
 <span class="comment"># Output: CONTRACT_ID (guárdalo!)</span>
 <span class="comment"># Ejemplo: CDTLBM7PGKSNM7K......</span></code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Desplegar contrato</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code>stellar contract deploy \
+  --wasm target/wasm32v1-none/release/contador.wasm \
+  --network testnet \
+  --source estudiante</code></pre>
             </div>
 
             <div class="step">
@@ -1404,30 +1697,64 @@ curl <span class="string">"https://friendbot.stellar.org/?addr=TU_DIRECCION"</sp
                 <code><span class="comment"># Consultar valor actual</span>
 stellar contract invoke \
   --id <span class="type">CONTRACT_ID</span> \
-  --source estudiante \
   --network testnet \
+  --source estudiante \
   -- get
 
 <span class="comment"># Incrementar</span>
 stellar contract invoke \
   --id <span class="type">CONTRACT_ID</span> \
-  --source estudiante \
   --network testnet \
+  --source estudiante \
   -- increment
 
 <span class="comment"># Decrementar</span>
 stellar contract invoke \
   --id <span class="type">CONTRACT_ID</span> \
-  --source estudiante \
   --network testnet \
+  --source estudiante \
   -- decrement
 
 <span class="comment"># Resetear</span>
 stellar contract invoke \
   --id <span class="type">CONTRACT_ID</span> \
-  --source estudiante \
   --network testnet \
+  --source estudiante \
   -- reset</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">📋 Invocar funciones</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <pre><code># Consultar valor actual
+stellar contract invoke \
+  --id CONTRACT_ID \
+  --network testnet \
+  --source estudiante \
+  -- get
+
+# Incrementar
+stellar contract invoke \
+  --id CONTRACT_ID \
+  --network testnet \
+  --source estudiante \
+  -- increment
+
+# Decrementar
+stellar contract invoke \
+  --id CONTRACT_ID \
+  --network testnet \
+  --source estudiante \
+  -- decrement
+
+# Resetear
+stellar contract invoke \
+  --id CONTRACT_ID \
+  --network testnet \
+  --source estudiante \
+  -- reset</code></pre>
             </div>
 
             <div class="card">
@@ -1550,6 +1877,11 @@ curl -X POST http://localhost:3000/contador/reset</code>
         <section id="comandos">
             <h2>📋 Comandos Rápidos</h2>
 
+            <div class="card">
+                <h4>⚠️ IMPORTANTE</h4>
+                <p>Usa <code>stellar</code> en lugar de <code>soroban</code> para CLI 25.x+</p>
+            </div>
+
             <div class="code-block">
                 <code><span class="comment"># ========== INICIALIZAR PROYECTO ==========</span>
 mkdir -p .cargo
@@ -1563,24 +1895,82 @@ cargo test
 cargo build --target wasm32v1-none --release
 
 <span class="comment"># ========== REDES ==========</span>
-soroban config network add testnet \
+stellar network add testnet \
   --rpc-url https://soroban-testnet.stellar.org \
   --network-passphrase "Test SDF Network ; September 2015"
 
 <span class="comment"># ========== IDENTIDADES ==========</span>
-soroban config identity generate estudiante
+stellar keys generate estudiante
+stellar keys fund estudiante --network testnet
 
 <span class="comment"># ========== DESPLIEGUE ==========</span>
-soroban contract deploy \
+stellar contract deploy \
   --wasm target/wasm32v1-none/release/contador.wasm \
   --network testnet \
   --source estudiante
 
 <span class="comment"># ========== INVOCAR ==========</span>
-soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- get
-soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- increment
-soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- decrement
-soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -- reset</code>
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- get
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- increment
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- decrement
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- reset</code>
+            </div>
+
+            <div class="clean-code-block">
+                <div class="code-header">
+                    <span class="code-header-label">🎯 TODOS LOS COMANDOS PARA COPIAR</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar todo</button>
+                </div>
+                <pre><code># ================================================
+# SMART CONTRACT CONTADOR - COMANDOS COMPLETOS
+# ================================================
+
+# 1. INSTALACIÓN DE ENTORNO
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
+cargo install --locked stellar-cli
+rustup target add wasm32v1-none
+
+# 2. CREAR PROYECTO
+mkdir soroban-contador && cd soroban-contador
+mkdir -p src .cargo
+
+# 3. CONFIGURAR .cargo/config.toml
+cat > .cargo/config.toml << 'EOF'
+[target.wasm32v1-none]
+rustflags = ["-C", "link-arg=--export-table"]
+EOF
+
+# 4. CREAR Cargo.toml (ver sección de código arriba)
+
+# 5. CREAR src/lib.rs (ver sección de código arriba)
+
+# 6. COMPILAR
+cargo build --target wasm32v1-none --release
+
+# 7. PROBAR
+cargo test
+
+# 8. CONFIGURAR TESTNET
+stellar network add testnet \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase "Test SDF Network ; September 2015"
+
+# 9. GENERAR IDENTIDAD
+stellar keys generate estudiante
+stellar keys fund estudiante --network testnet
+
+# 10. DESPLIEGUE
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/contador.wasm \
+  --network testnet \
+  --source estudiante
+
+# 11. INVOCAR (reemplaza CONTRACT_ID)
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- get
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- increment
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- decrement
+stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- reset</code></pre>
             </div>
         </section>
 
@@ -1670,6 +2060,25 @@ soroban contract invoke --id CONTRACT_ID --source estudiante --network testnet -
                 const target = document.querySelector(this.getAttribute('href'));
                 target.scrollIntoView({ behavior: 'smooth' });
             });
+        });
+
+        function copyCode(btn) {
+            const codeBlock = btn.closest('.clean-code-block') || btn.closest('.code-block');
+            const code = codeBlock.querySelector('code') || codeBlock;
+            const text = code.textContent || code.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '¡Copiado!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 Copiar';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        document.querySelectorAll('.copy-code-btn').forEach(btn => {
+            btn.addEventListener('click', () => copyCode(btn));
         });
     </script>
 </body>
