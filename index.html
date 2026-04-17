@@ -1596,9 +1596,7 @@ cargo test test_increment</code></pre>
                 <strong>Configurar red TestNet</strong>
             </div>
             <div class="code-block">
-                <code>stellar network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase <span class="string">"Test SDF Network ; September 2015"</span>
+                <code>stellar network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase <span class="string">"Test SDF Network ; September 2015"</span>
 
 <span class="comment"># Ver redes configuradas</span>
 stellar network ls</code>
@@ -1609,9 +1607,7 @@ stellar network ls</code>
                     <span class="code-header-label">📋 Configurar red</span>
                     <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
                 </div>
-                <pre><code>stellar network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
+                <pre><code>stellar network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
 
 stellar network ls</code></pre>
             </div>
@@ -1669,10 +1665,7 @@ curl <span class="string">"https://friendbot.stellar.org/?addr=TU_DIRECCION"</sp
                 <strong>Desplegar contrato</strong>
             </div>
             <div class="code-block">
-                <code>stellar contract deploy \
-  --wasm target/wasm32v1-none/release/contador.wasm \
-  --network testnet \
-  --source estudiante
+                <code>stellar contract deploy --wasm target/wasm32v1-none/release/contador.wasm --network testnet --source estudiante
 
 <span class="comment"># Output: CONTRACT_ID (guárdalo!)</span>
 <span class="comment"># Ejemplo: CDTLBM7PGKSNM7K......</span></code>
@@ -1683,10 +1676,7 @@ curl <span class="string">"https://friendbot.stellar.org/?addr=TU_DIRECCION"</sp
                     <span class="code-header-label">📋 Desplegar contrato</span>
                     <button class="copy-code-btn" onclick="copyCode(this)">📋 Copiar</button>
                 </div>
-                <pre><code>stellar contract deploy \
-  --wasm target/wasm32v1-none/release/contador.wasm \
-  --network testnet \
-  --source estudiante</code></pre>
+                <pre><code>stellar contract deploy --wasm target/wasm32v1-none/release/contador.wasm --network testnet --source estudiante</code></pre>
             </div>
 
             <div class="step">
@@ -1895,19 +1885,14 @@ cargo test
 cargo build --target wasm32v1-none --release
 
 <span class="comment"># ========== REDES ==========</span>
-stellar network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
+stellar network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
 
 <span class="comment"># ========== IDENTIDADES ==========</span>
 stellar keys generate estudiante
 stellar keys fund estudiante --network testnet
 
 <span class="comment"># ========== DESPLIEGUE ==========</span>
-stellar contract deploy \
-  --wasm target/wasm32v1-none/release/contador.wasm \
-  --network testnet \
-  --source estudiante
+stellar contract deploy --wasm target/wasm32v1-none/release/contador.wasm --network testnet --source estudiante
 
 <span class="comment"># ========== INVOCAR ==========</span>
 stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- get
@@ -1952,19 +1937,14 @@ cargo build --target wasm32v1-none --release
 cargo test
 
 # 8. CONFIGURAR TESTNET
-stellar network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
+stellar network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
 
 # 9. GENERAR IDENTIDAD
 stellar keys generate estudiante
 stellar keys fund estudiante --network testnet
 
 # 10. DESPLIEGUE
-stellar contract deploy \
-  --wasm target/wasm32v1-none/release/contador.wasm \
-  --network testnet \
-  --source estudiante
+stellar contract deploy --wasm target/wasm32v1-none/release/contador.wasm --network testnet --source estudiante
 
 # 11. INVOCAR (reemplaza CONTRACT_ID)
 stellar contract invoke --id CONTRACT_ID --network testnet --source estudiante -- get

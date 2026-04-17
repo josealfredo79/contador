@@ -104,9 +104,7 @@ cargo test -- --show-output
 
 ### Agregar red TestNet
 ```bash
-stellar network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
+stellar network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
 ```
 
 ### Agregar red MainNet

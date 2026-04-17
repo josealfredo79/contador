@@ -125,9 +125,7 @@ cargo test -- --nocapture
 
 ```bash
 # 1. Configurar red
-stellar network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
+stellar network add testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015"
 
 # 2. Generar identidad
 soroban config identity generate mi-cuenta
